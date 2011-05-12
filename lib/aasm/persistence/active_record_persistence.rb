@@ -38,7 +38,7 @@ module AASM
         base.send(:include, AASM::Persistence::ActiveRecordPersistence::WriteState) unless base.method_defined?(:aasm_write_state)
         base.send(:include, AASM::Persistence::ActiveRecordPersistence::WriteStateWithoutPersistence) unless base.method_defined?(:aasm_write_state_without_persistence)
 
-        if base.respond_to?(:named_scope)
+        if base.respond_to?(:scope)
           base.extend(AASM::Persistence::ActiveRecordPersistence::NamedScopeMethods)
 
           base.class_eval do
@@ -51,7 +51,7 @@ module AASM
           end
         end
 
-        base.before_validation_on_create :aasm_ensure_initial_state
+        base.before_validation :aasm_ensure_initial_state, :on => :create
       end
 
       module ClassMethods
@@ -240,7 +240,7 @@ module AASM
       module NamedScopeMethods
         def aasm_state_with_named_scope name, options = {}
           aasm_state_without_named_scope name, options
-          self.named_scope name, :conditions => { "#{table_name}.#{self.aasm_column}" => name.to_s} unless self.respond_to?(name)
+          self.scope name, :conditions => { "#{table_name}.#{self.aasm_column}" => name.to_s} unless self.respond_to?(name)
         end
       end
     end
